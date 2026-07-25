@@ -431,7 +431,7 @@
   <script>
   (()=>{
     'use strict';
-    const API='https://songs.systumm-bot.workers.dev';
+    const API='https://songs.systumm.workers.dev';
     const $=s=>document.querySelector(s);
     const content=$('#content'),audio=$('#audio'),preloadAudio=$('#preloadAudio'),player=$('#player'),drawer=$('#drawer'),scrim=$('#scrim'),fullPlayer=$('#fullPlayer');
     const cache={};let activeView='trending',queue=[],current=-1,renderedSongs=[],playThrough=false,shuffleOn=false,repeatMode=0,toastTimer,playPulseTimer,browseRequestId=0,fullGestureTimer=0,fullGestureAnimating=false;
