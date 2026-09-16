@@ -391,6 +391,24 @@
       .full-player,.full-player.open{transition-duration:.01ms!important}
     }
 
+    /* === NEW: Download + Copy URL tool buttons === */
+    .full-tools{grid-template-columns:auto auto auto auto minmax(100px,1fr) auto}
+    #downloadBtn.active,#copyUrlBtn.active{
+      border-color:rgba(114,239,128,.55);
+      color:var(--accent);
+      background:rgba(114,239,128,.09);
+    }
+    @media(max-width:760px){
+      .full-tools{grid-template-columns:1fr 1fr 1fr auto auto}
+      .full-tools .tool-text{display:none}
+      #downloadBtn,#copyUrlBtn{padding-inline:9px;font-size:.95rem}
+      #fullQueueTool .tool-text{display:none}
+    }
+    @media(max-width:370px){
+      .full-tools{gap:6px}
+      #downloadBtn,#copyUrlBtn{padding-inline:7px}
+    }
+
   </style>
 </head>
 <body>
@@ -420,7 +438,7 @@
         <span class="full-label" id="fullPosition">Systumm Music</span><h2 id="fullTitle">Nothing playing</h2><p id="fullSubtitle"></p><div class="visualizer" id="visualizer" aria-hidden="true"><i style="--delay:-.12s;--peak:.42"></i><i style="--delay:-.4s;--peak:.72"></i><i style="--delay:-.2s;--peak:.58"></i><i style="--delay:-.62s;--peak:.9"></i><i style="--delay:-.3s;--peak:.68"></i><i style="--delay:-.54s;--peak:.48"></i><i style="--delay:-.08s;--peak:.82"></i><i style="--delay:-.7s;--peak:.6"></i><i style="--delay:-.26s;--peak:.96"></i><i style="--delay:-.48s;--peak:.7"></i><i style="--delay:-.16s;--peak:.52"></i><i style="--delay:-.58s;--peak:.88"></i><i style="--delay:-.34s;--peak:.64"></i><i style="--delay:-.74s;--peak:.45"></i><i style="--delay:-.22s;--peak:.76"></i><i style="--delay:-.5s;--peak:.56"></i></div>
         <div class="full-progress"><span id="fullElapsed">0:00</span><input class="range" id="fullSeek" type="range" min="0" max="100" value="0" aria-label="Seek"><span id="fullTotal">0:00</span></div>
         <div class="full-controls"><button class="round-btn" id="fullPrevBtn" aria-label="Previous track">⏮</button><button class="round-btn full-play" id="fullPlayBtn" aria-label="Play">▶</button><button class="round-btn" id="fullNextBtn" aria-label="Next track">⏭</button></div>
-        <div class="full-tools"><button class="tool-btn" id="shuffleBtn" aria-pressed="false">⇄ Shuffle</button><button class="tool-btn" id="repeatBtn" aria-pressed="false">↻ Repeat</button><div class="volume"><button id="muteBtn" aria-label="Mute">🔊</button><input class="range" id="volume" type="range" min="0" max="1" step="0.01" value="0.9" aria-label="Volume"><output class="volume-level" id="volumeLevel" for="volume">90%</output></div><button class="tool-btn" id="fullQueueTool">Queue <span id="fullQueueCount">0</span></button></div>
+        <div class="full-tools"><button class="tool-btn" id="shuffleBtn" aria-pressed="false">⇄ <span class="tool-text">Shuffle</span></button><button class="tool-btn" id="repeatBtn" aria-pressed="false">↻ <span class="tool-text" id="repeatLabel">Repeat</span></button><button class="tool-btn" id="downloadBtn" aria-label="Open 320 kbps audio in a new tab" title="Open 320 kbps audio in a new tab"><span aria-hidden="true">⬇</span> <span class="tool-text">Download</span></button><button class="tool-btn" id="copyUrlBtn" aria-label="Copy audio URL" title="Copy audio URL"><span aria-hidden="true">🔗</span> <span class="tool-text">Copy link</span></button><div class="volume"><button id="muteBtn" aria-label="Mute">🔊</button><input class="range" id="volume" type="range" min="0" max="1" step="0.01" value="0.9" aria-label="Volume"><output class="volume-level" id="volumeLevel" for="volume">90%</output></div><button class="tool-btn" id="fullQueueTool"><span class="tool-text">Queue</span> <span id="fullQueueCount">0</span></button></div>
         <section class="full-next-list"><h3>Coming up</h3><div class="next-preview" id="nextPreview"></div></section>
       </div>
     </div>
@@ -453,7 +471,7 @@
     function toggleFull(open=!fullPlayer.classList.contains('open')){if(open&&!audio.src)return;if(fullGestureAnimating)return;clearFullGestureStyles();fullPlayer.classList.toggle('open',open);fullPlayer.setAttribute('aria-hidden',String(!open));document.body.classList.toggle('player-expanded',open);if(open){fullPlayer.scrollTop=0;syncPlayer();$('#minimizeBtn').focus()}syncVisualizer()}
     function restoreFullAfterDrag(){if(fullGestureAnimating)return;fullGestureAnimating=true;fullPlayer.classList.remove('gesture-dragging');fullPlayer.classList.add('gesture-settling');fullPlayer.style.transition='transform .36s cubic-bezier(.2,.82,.2,1), opacity .3s ease';requestAnimationFrame(()=>{fullPlayer.style.transform='translate3d(0,0,0)';fullPlayer.style.opacity='1'});fullGestureTimer=setTimeout(clearFullGestureStyles,410)}
     function finishSwipeMinimize(){if(fullGestureAnimating)return;fullGestureAnimating=true;fullPlayer.classList.remove('gesture-dragging');fullPlayer.classList.add('gesture-settling');fullPlayer.style.transition='transform .68s cubic-bezier(.2,.72,.16,1), opacity .54s ease';requestAnimationFrame(()=>{fullPlayer.style.transform='translate3d(0,100%,0)';fullPlayer.style.opacity='0'});fullGestureTimer=setTimeout(()=>{fullPlayer.classList.remove('open');fullPlayer.setAttribute('aria-hidden','true');document.body.classList.remove('player-expanded');fullPlayer.style.transition='none';fullPlayer.style.removeProperty('transform');fullPlayer.style.removeProperty('opacity');requestAnimationFrame(()=>{fullPlayer.style.removeProperty('transition');fullPlayer.classList.remove('gesture-settling');fullGestureAnimating=false});syncVisualizer()},720)}
-    function updatePreferences(){shuffleOn=$('#shuffleBtn').classList.toggle('active',shuffleOn);$('#shuffleBtn').setAttribute('aria-pressed',String(shuffleOn));const names=['Off','All','One'];$('#repeatBtn').classList.toggle('active',repeatMode>0);$('#repeatBtn').setAttribute('aria-pressed',String(repeatMode>0));$('#repeatBtn').textContent=repeatMode===2?'↻ Repeat one':repeatMode===1?'↻ Repeat all':'↻ Repeat';store('systumm-shuffle',shuffleOn);store('systumm-repeat',repeatMode);if(arguments.length)notify(`Repeat ${names[repeatMode].toLowerCase()}`)}
+    function updatePreferences(){shuffleOn=$('#shuffleBtn').classList.toggle('active',shuffleOn);$('#shuffleBtn').setAttribute('aria-pressed',String(shuffleOn));const names=['Off','All','One'];$('#repeatBtn').classList.toggle('active',repeatMode>0);$('#repeatBtn').setAttribute('aria-pressed',String(repeatMode>0));$('#repeatLabel').textContent=repeatMode===2?'Repeat one':repeatMode===1?'Repeat all':'Repeat';store('systumm-shuffle',shuffleOn);store('systumm-repeat',repeatMode);if(arguments.length)notify(`Repeat ${names[repeatMode].toLowerCase()}`)}
     function renderNext(){const list=[];for(let n=1;n<=3&&n<queue.length;n++)list.push(queue[(current+n)%queue.length]);$('#nextPreview').innerHTML=list.length?list.map(s=>`<div class="next-item"><img src="${esc(image(Array.isArray(s.image)?s.image.at(-1):s.image))}" alt=""><div><strong>${esc(titleOf(s))}</strong><span>${esc(subtitleOf(s))}</span></div><span>›</span></div>`).join(''):'<div style="color:var(--muted);font-size:.78rem;padding:8px">Nothing else in the queue</div>'}
     function clearPreload(){preloadAudio.pause();preloadAudio.removeAttribute('src');preloadAudio.load()}
     function preloadNext(){clearPreload();if(queue.length<2||current<0||shuffleOn||repeatMode===2)return;const next=queue[(current+1)%queue.length];if(!next?.url||songKey(next)===songKey(queue[current]))return;preloadAudio.preload='auto';preloadAudio.src=next.url;preloadAudio.load()}
@@ -461,6 +479,32 @@
     function pulsePlayButtons(){clearTimeout(playPulseTimer);for(const el of [$('#playBtn'),$('#fullPlayBtn')]){el.classList.remove('playing-pulse');void el.offsetWidth;el.classList.add('playing-pulse')}playPulseTimer=setTimeout(()=>{$('#playBtn').classList.remove('playing-pulse');$('#fullPlayBtn').classList.remove('playing-pulse')},420)}
     function updateLikeUI(){const key=songKey(queue[current]),liked=Boolean(key&&likedSongs.includes(key));$('#likeBtn').classList.toggle('liked',liked);$('#likeBtn').textContent=liked?'♥':'♡';$('#likeBtn').setAttribute('aria-pressed',String(liked));$('#likeBtn').setAttribute('aria-label',liked?'Remove current song from favourites':'Add current song to favourites')}
     function toggleLike(){const s=queue[current],key=songKey(s);if(!key)return;const index=likedSongs.indexOf(key),liked=index<0;if(liked)likedSongs.push(key);else likedSongs.splice(index,1);try{localStorage.setItem('systumm-likes',JSON.stringify(likedSongs))}catch{}updateLikeUI();notify(liked?'Added to favourites':'Removed from favourites')}
+    function openAudioUrl(song){
+      if(!song?.url)return notify('Nothing to open yet.');
+      // Must stay synchronous — any await before window.open() trips the popup blocker.
+      // Modern browsers apply noopener to target=_blank automatically.
+      window.open(song.url,'_blank');
+      notify('Opened in a new tab. Use “Save audio as…” if it starts playing.');
+    }
+    async function copyAudioUrl(song){
+      if(!song?.url)return notify('Nothing to copy yet.');
+      try{
+        await navigator.clipboard.writeText(song.url);
+        notify('Audio URL copied to clipboard');
+      }catch{
+        // Fallback for non-secure contexts and older Safari.
+        const field=document.createElement('textarea');
+        field.value=song.url;
+        field.setAttribute('readonly','');
+        field.style.cssText='position:fixed;top:-1000px;left:-1000px;opacity:0';
+        document.body.appendChild(field);
+        field.select();
+        field.setSelectionRange(0,field.value.length);
+        try{document.execCommand('copy');notify('Audio URL copied to clipboard');}
+        catch{notify('Could not copy automatically — long-press the link instead.');}
+        finally{field.remove();}
+      }
+    }
     function swipeFeedback(target,direction){if(!target)return;const shifts={next:['-18px','0'],previous:['18px','0'],maximize:['0','-14px'],minimize:['0','18px']},shift=shifts[direction]||['0','0'];target.style.setProperty('--swipe-x',shift[0]);target.style.setProperty('--swipe-y',shift[1]);target.classList.remove('swipe-feedback');void target.offsetWidth;target.classList.add('swipe-feedback');setTimeout(()=>target.classList.remove('swipe-feedback'),240)}
     function enableMiniPlayerSwipe(surface){let start=null,axis='';surface.addEventListener('touchstart',e=>{if(e.touches.length!==1||e.target.closest('button,input,a')){start=null;axis='';return}const t=e.touches[0];start={x:t.clientX,y:t.clientY,time:performance.now()};axis=''},{passive:true});surface.addEventListener('touchmove',e=>{if(!start||e.touches.length!==1||axis)return;const t=e.touches[0],dx=t.clientX-start.x,dy=t.clientY-start.y;if(Math.max(Math.abs(dx),Math.abs(dy))<12)return;axis=Math.abs(dy)>Math.abs(dx)*1.2?'vertical':Math.abs(dx)>Math.abs(dy)*1.2?'horizontal':'mixed'},{passive:true});surface.addEventListener('touchend',e=>{if(!start||e.changedTouches.length!==1){start=null;axis='';return}const t=e.changedTouches[0],dx=t.clientX-start.x,dy=t.clientY-start.y,elapsed=performance.now()-start.time;start=null;const resolvedAxis=axis||((Math.abs(dy)>Math.abs(dx)*1.2)?'vertical':(Math.abs(dx)>Math.abs(dy)*1.2?'horizontal':'mixed'));axis='';if(elapsed>850)return;if(resolvedAxis==='vertical'){if(dy<-55)toggleFull(true);return}if(resolvedAxis!=='horizontal'||queue.length<2||Math.abs(dx)<60)return;if(dx<0)nextTrack(false);else playAt(current-1)},{passive:true});surface.addEventListener('touchcancel',()=>{start=null;axis=''},{passive:true})}
     function enableFullPlayerGestures(surface){
@@ -726,6 +770,8 @@
     enableFullPlayerGestures(fullPlayer);
     enableHomeTabSwipe(document.querySelector('main.shell'));
     $('#shuffleBtn').onclick=()=>{shuffleOn=!shuffleOn;updatePreferences();preloadNext();notify(shuffleOn?'Shuffle on':'Shuffle off')};$('#repeatBtn').onclick=()=>{repeatMode=(repeatMode+1)%3;updatePreferences(true);preloadNext()};$('#volume').oninput=e=>{audio.muted=false;audio.volume=Number(e.target.value);store('systumm-volume',audio.volume);syncVolumeUI()};$('#muteBtn').onclick=()=>{audio.muted=!audio.muted;syncVolumeUI()};$('#likeBtn').onclick=toggleLike;
+    $('#downloadBtn').onclick=()=>openAudioUrl(queue[current]);
+    $('#copyUrlBtn').onclick=()=>copyAudioUrl(queue[current]);
     const openQueue=()=>{toggleFull(false);toggleQueue(true)};$('#queueBtn').onclick=openQueue;$('#fullQueueTool').onclick=openQueue;$('#closeQueue').onclick=()=>toggleQueue(false);scrim.onclick=()=>toggleQueue(false);$('#clearQueue').onclick=()=>{audio.pause();audio.removeAttribute('src');audio.load();clearMediaSession();clearPreload();queue=[];current=-1;playThrough=false;player.classList.remove('show');document.body.classList.remove('has-player');toggleFull(false);toggleQueue(false);renderQueue();markPlaying();document.title='Systumm Music';notify('Queue cleared')};
     document.addEventListener('keydown',e=>{const typing=/INPUT|TEXTAREA|SELECT/.test(e.target.tagName);if(e.key==='Escape'){if(drawer.classList.contains('open'))toggleQueue(false);else if(fullPlayer.classList.contains('open'))toggleFull(false);return}if(typing||!audio.src)return;if(e.code==='Space'){e.preventDefault();togglePlayback()}else if(e.key==='ArrowRight')audio.currentTime=Math.min(audio.duration||0,audio.currentTime+10);else if(e.key==='ArrowLeft')audio.currentTime=Math.max(0,audio.currentTime-10);else if(e.key.toLowerCase()==='m'){$('#muteBtn').click()}else if(e.key.toLowerCase()==='f')toggleFull()});
     if(MEDIA_SESSION_SUPPORTED){
